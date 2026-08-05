@@ -1,3 +1,4 @@
+import { ViewTransition } from 'react'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -21,6 +22,7 @@ import {
 import { jsonLdBreadcrumb, jsonLdImovel, jsonLdVideo, urlAbsoluta } from '@/lib/seo'
 import { VideoHero } from '@/components/video-hero'
 import { BotaoWhatsapp } from '@/components/botao-whatsapp'
+import { TransicaoPagina } from '@/components/animacao/transicao-pagina'
 
 /**
  * Página do imóvel — o destino de todo link que ele manda no WhatsApp e no direct.
@@ -90,6 +92,7 @@ export default async function PaginaImovel({ params }: PageProps<'/imoveis/[slug
     : null
 
   return (
+    <TransicaoPagina>
     <article className="mx-auto max-w-6xl px-4 py-6">
       <script
         type="application/ld+json"
@@ -119,7 +122,11 @@ export default async function PaginaImovel({ params }: PageProps<'/imoveis/[slug
           Início
         </Link>
         <span className="mx-1.5">/</span>
-        <Link href="/imoveis" className="hover:text-marca-700">
+        <Link
+          href="/imoveis"
+          transitionTypes={['nav-back']}
+          className="hover:text-marca-700"
+        >
           Imóveis
         </Link>
         <span className="mx-1.5">/</span>
@@ -128,6 +135,11 @@ export default async function PaginaImovel({ params }: PageProps<'/imoveis/[slug
 
       {/* HERO: vídeo vertical à esquerda, dados e CTA à direita. Nunca 16:9. */}
       <div className="grid gap-8 lg:grid-cols-[minmax(0,380px)_1fr]">
+        {/*
+          Outro lado do elemento compartilhado: o mesmo `name` usado no card da listagem.
+          O navegador liga os dois e interpola — a capa do card cresce e vira este hero.
+        */}
+        <ViewTransition name={`capa-${imovel.id}`} share="morph">
         <div>
           {video ? (
             <VideoHero
@@ -159,6 +171,7 @@ export default async function PaginaImovel({ params }: PageProps<'/imoveis/[slug
             </div>
           )}
         </div>
+        </ViewTransition>
 
         <div>
           <p className="text-xs font-medium tracking-wide text-stone-500 uppercase">
@@ -352,6 +365,7 @@ export default async function PaginaImovel({ params }: PageProps<'/imoveis/[slug
         </div>
       </section>
     </article>
+    </TransicaoPagina>
   )
 }
 

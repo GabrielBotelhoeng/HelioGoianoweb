@@ -1,6 +1,12 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  /**
+   * View Transitions não precisam de flag no Next 16: o App Router já usa o canary do
+   * React, que traz `<ViewTransition>` (confirmado em
+   * `node_modules/next/dist/docs/01-app/02-guides/view-transitions.md`).
+   * O `experimental.viewTransition` de versões anteriores não existe mais.
+   */
   images: {
     /**
      * Só o YouTube por enquanto: os vídeos são hospedados lá (PROJETO.md seção 7) e as

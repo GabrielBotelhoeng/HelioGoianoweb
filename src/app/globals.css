@@ -105,6 +105,124 @@ html {
   );
 }
 
+/* ---------------------------------------------------------------------------
+   VIEW TRANSITIONS
+   Receitas da skill `react-view-transitions`. Não escrever animação própria aqui:
+   estas foram desenhadas para não brigar entre si quando várias disparam juntas.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --duration-exit: 150ms;
+  --duration-enter: 210ms;
+  --duration-move: 400ms;
+}
+
+@keyframes fade {
+  from {
+    filter: blur(3px);
+    opacity: 0;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+/* Navegação hierárquica: listagem -> imóvel (avança) e o caminho de volta. */
+::view-transition-old(.nav-forward) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-exit) ease-in both fade reverse,
+    var(--duration-move) ease-in-out both slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both fade,
+    var(--duration-move) ease-in-out both slide;
+}
+
+::view-transition-old(.nav-back) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-exit) ease-in both fade reverse,
+    var(--duration-move) ease-in-out both slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both fade,
+    var(--duration-move) ease-in-out both slide;
+}
+
+/* Elemento compartilhado: a capa do card vira o hero da página do imóvel. */
+::view-transition-group(.morph) {
+  animation-duration: var(--duration-move);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+@keyframes via-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+/* Texto compartilhado: sem esta receita o título vira fantasma ao escalar. */
+::view-transition-group(.text-morph) {
+  animation-duration: var(--duration-move);
+}
+::view-transition-old(.text-morph) {
+  display: none;
+}
+::view-transition-new(.text-morph) {
+  animation: none;
+  object-fit: none;
+  object-position: left top;
+}
+
+/* A sobreposição da transição engole cliques enquanto anima. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* Movimento reduzido: corta a animação, mantém a navegação. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   BARRA DE PROGRESSO DA ROLAGEM
+   `animation-timeline: scroll()` — nenhum listener, nenhum KB de JavaScript.
+   --------------------------------------------------------------------------- */
+.barra-progresso {
+  transform-origin: 0 50%;
+  animation: crescer-barra linear;
+  animation-timeline: scroll(root block);
+}
+
+@keyframes crescer-barra {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 /* Grão sutil sobre as superfícies escuras: tira o aspecto chapado do gradiente. */
 .textura-escura {
   background-image:

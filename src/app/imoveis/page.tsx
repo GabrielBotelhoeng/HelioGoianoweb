@@ -6,6 +6,7 @@ import { CardImovel } from '@/components/card-imovel'
 import { FiltrosImoveis } from '@/components/filtros-imoveis'
 import { BotaoWhatsapp } from '@/components/botao-whatsapp'
 import { buscarConfiguracao, linkWhatsappDireto } from '@/lib/config'
+import { TransicaoPagina } from '@/components/animacao/transicao-pagina'
 
 export const metadata: Metadata = {
   title: 'Imóveis à venda em Alexânia-GO',
@@ -32,6 +33,7 @@ export default async function PaginaImoveis({ searchParams }: PageProps<'/imovei
   const itens = toPlain(resultado.itens)
 
   return (
+    <TransicaoPagina>
     <div className="mx-auto max-w-6xl px-4 py-8">
       <header className="mb-6">
         <h1 className="font-display text-3xl font-extrabold tracking-tight text-carvao-900 sm:text-4xl">
@@ -83,6 +85,7 @@ export default async function PaginaImoveis({ searchParams }: PageProps<'/imovei
         </div>
       )}
     </div>
+    </TransicaoPagina>
   )
 }
 

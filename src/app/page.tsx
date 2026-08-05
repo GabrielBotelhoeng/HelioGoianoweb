@@ -9,6 +9,7 @@ import { BotaoWhatsapp } from '@/components/botao-whatsapp'
 import { TextoRevelado } from '@/components/animacao/texto-revelado'
 import { NumeroAnimado } from '@/components/animacao/numero-animado'
 import { CartaoHolofote } from '@/components/animacao/cartao-holofote'
+import { HeroParallax } from '@/components/animacao/hero-parallax'
 import {
   CascataAoRolar,
   EntraAoRolar,
@@ -44,7 +45,7 @@ export default async function Home() {
     <>
       {/* ---------- HERO ---------- */}
       <section className="relative overflow-hidden bg-carvao-950">
-        <div className="textura-escura absolute inset-0" aria-hidden="true" />
+        <HeroParallax />
 
         <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.15fr_minmax(0,360px)] lg:items-center">
           <div>

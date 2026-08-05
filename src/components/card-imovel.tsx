@@ -1,3 +1,4 @@
+import { ViewTransition } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { ImovelListado } from '@/lib/imoveis'
@@ -26,8 +27,16 @@ export function CardImovel({ imovel }: { imovel: ImovelListado }) {
   return (
     <Link
       href={`/imoveis/${imovel.slug}`}
+      // `nav-forward`: entrar no imóvel é descer um nível, e o deslize comunica isso.
+      transitionTypes={['nav-forward']}
       className="group flex h-full flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-stone-300 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-600"
     >
+      {/*
+        Elemento compartilhado: esta capa é o mesmo objeto que vira o hero da página do
+        imóvel. O navegador interpola entre os dois retângulos, e a navegação deixa de
+        ser um corte seco para virar continuidade — "é a mesma coisa, estou entrando nela".
+      */}
+      <ViewTransition name={`capa-${imovel.id}`} share="morph">
       <div className="relative aspect-[4/3] overflow-hidden bg-carvao-900">
         {capa ? (
           <Image
@@ -61,6 +70,7 @@ export function CardImovel({ imovel }: { imovel: ImovelListado }) {
           )}
         </div>
       </div>
+      </ViewTransition>
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div>

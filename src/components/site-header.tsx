@@ -21,6 +21,16 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-carvao-950/85 backdrop-blur-xl">
+      {/*
+        Progresso da leitura. `animation-timeline: scroll()` no CSS: o navegador liga a
+        animação à barra de rolagem sozinho — sem listener de scroll, sem re-render,
+        sem um byte de JavaScript.
+      */}
+      <div
+        aria-hidden="true"
+        className="barra-progresso absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-ouro-500 via-ouro-300 to-marca-400"
+      />
+
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
         <Link href="/" className="flex min-w-0 shrink-0 flex-col leading-tight">
           <span className="truncate font-display text-base font-extrabold tracking-tight text-white sm:text-lg">
