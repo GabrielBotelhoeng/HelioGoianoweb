@@ -1,9 +1,6 @@
 import type { Metadata } from 'next'
 import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
-import { SiteHeader } from '@/components/site-header'
-import { SiteFooter } from '@/components/site-footer'
-import { ProvedorMotion } from '@/components/animacao/provedor-motion'
 import { siteUrl } from '@/lib/seo'
 
 /**
@@ -67,12 +64,12 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       lang="pt-BR"
       className={`${instrument.variable} ${bricolage.variable} ${jetbrains.variable} h-full antialiased`}
     >
+      {/*
+        Só o esqueleto: fontes, tokens e metadados. Header e rodapé vivem em
+        `(site)/layout.tsx`, senão apareceriam em volta do painel do admin também.
+      */}
       <body className="flex min-h-full flex-col bg-[#faf9f7] font-sans text-stone-900">
-        <ProvedorMotion>
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-        </ProvedorMotion>
+        {children}
       </body>
     </html>
   )

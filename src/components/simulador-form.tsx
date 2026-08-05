@@ -7,7 +7,7 @@ import {
   registrarLeadDaSimulacao,
   type EstadoLead,
   type EstadoSimulacao,
-} from '@/app/simulador/acoes'
+} from '@/app/(site)/simulador/acoes'
 import { CardImovel } from '@/components/card-imovel'
 import { BotaoWhatsapp } from '@/components/botao-whatsapp'
 import { formatarBRL } from '@/lib/formato'
