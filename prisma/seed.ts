@@ -40,15 +40,16 @@ async function main() {
 
   // ---------- CONFIGURAÇÃO DO SITE ----------
   // [REAL] CRECI, cidade e handles vêm do PROJETO.md.
-  // [CONFIRMAR] telefone: o documento nunca informa o número. Placeholder proposital —
-  // um número errado aqui manda lead para desconhecido.
+  // [CONFIRMAR] telefone: número de contato provisório do desenvolvimento. Trocar pelo
+  // WhatsApp do Hélio (ou da imobiliária) antes de trocar o link da bio do Instagram —
+  // a partir daí todo CTA do site cai nesse número.
   console.log('Configuração do site...')
   await prisma.configuracaoSite.create({
     data: {
       id: 'default',
       nomeExibicao: 'Hélio Goiano Corretor',
       creci: '11643',
-      telefoneWhatsapp: '5562000000000', // [CONFIRMAR] substituir pelo WhatsApp real
+      telefoneWhatsapp: '5562992058735', // [CONFIRMAR] provisório — substituir pelo do Hélio
       mensagemWhatsappPadrao:
         'Olá Hélio, tenho interesse no imóvel {codigo} — {titulo}. {link}',
       endereco: 'Av. Brasília, Alexânia - GO', // [REAL]
