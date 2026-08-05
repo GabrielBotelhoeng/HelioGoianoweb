@@ -25,7 +25,7 @@ export default async function PaginaSimulador() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <header className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-stone-900 sm:text-3xl">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-carvao-900 sm:text-4xl">
           Simulador de financiamento
         </h1>
         <p className="mt-2 text-stone-600">

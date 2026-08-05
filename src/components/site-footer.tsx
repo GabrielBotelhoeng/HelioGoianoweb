@@ -18,29 +18,35 @@ export async function SiteFooter() {
   ].filter((rede): rede is { url: string; rotulo: string } => Boolean(rede.url))
 
   return (
-    <footer className="mt-12 border-t border-stone-200 bg-stone-50">
+    <footer className="relative mt-12 overflow-hidden bg-carvao-950 text-white/70">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdCorretor(config)) }}
       />
 
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="textura-escura absolute inset-0 opacity-60" aria-hidden="true" />
+
+      <div className="relative mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2 lg:col-span-1">
-          <p className="text-base font-bold text-marca-800">{config.nomeExibicao}</p>
-          <p className="mt-1 text-sm font-medium text-stone-600">CRECI {config.creci}</p>
+          <p className="font-display text-base font-extrabold text-white">{config.nomeExibicao}</p>
+          <p className="mt-1 text-xs font-semibold tracking-[0.18em] text-ouro-400 uppercase">
+            CRECI {config.creci}
+          </p>
           {config.sobreTexto && (
-            <p className="mt-3 text-sm leading-relaxed text-stone-600">{config.sobreTexto}</p>
+            <p className="mt-4 text-sm leading-relaxed text-white/55">{config.sobreTexto}</p>
           )}
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-stone-900">Atendimento</h2>
-          <ul className="mt-3 space-y-2 text-sm text-stone-600">
+          <h2 className="text-xs font-semibold tracking-[0.18em] text-white/40 uppercase">
+            Atendimento
+          </h2>
+          <ul className="mt-4 space-y-2 text-sm text-white/70">
             {config.endereco && <li>{config.endereco}</li>}
             {config.horarioAtendimento && <li>{config.horarioAtendimento}</li>}
             {config.email && (
               <li>
-                <a className="hover:text-marca-700" href={`mailto:${config.email}`}>
+                <a className="transition-colors hover:text-ouro-300" href={`mailto:${config.email}`}>
                   {config.email}
                 </a>
               </li>
@@ -50,7 +56,7 @@ export async function SiteFooter() {
                 href={linkWhatsappDireto(config)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-marca-700 hover:underline"
+                className="font-semibold text-zap-500 transition-colors hover:text-zap-600"
               >
                 Falar no WhatsApp
               </a>
@@ -59,25 +65,27 @@ export async function SiteFooter() {
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-stone-900">Navegar</h2>
-          <ul className="mt-3 space-y-2 text-sm text-stone-600">
+          <h2 className="text-xs font-semibold tracking-[0.18em] text-white/40 uppercase">
+            Navegar
+          </h2>
+          <ul className="mt-4 space-y-2 text-sm text-white/70">
             <li>
-              <Link className="hover:text-marca-700" href="/imoveis">
+              <Link className="transition-colors hover:text-ouro-300" href="/imoveis">
                 Imóveis
               </Link>
             </li>
             <li>
-              <Link className="hover:text-marca-700" href="/loteamentos">
+              <Link className="transition-colors hover:text-ouro-300" href="/loteamentos">
                 Loteamentos
               </Link>
             </li>
             <li>
-              <Link className="hover:text-marca-700" href="/simulador">
+              <Link className="transition-colors hover:text-ouro-300" href="/simulador">
                 Simulador de financiamento
               </Link>
             </li>
             <li>
-              <Link className="hover:text-marca-700" href="/sobre">
+              <Link className="transition-colors hover:text-ouro-300" href="/sobre">
                 Sobre o Hélio
               </Link>
             </li>
@@ -86,12 +94,14 @@ export async function SiteFooter() {
 
         {redes.length > 0 && (
           <div>
-            <h2 className="text-sm font-semibold text-stone-900">Redes</h2>
-            <ul className="mt-3 space-y-2 text-sm text-stone-600">
+            <h2 className="text-xs font-semibold tracking-[0.18em] text-white/40 uppercase">
+              Redes
+            </h2>
+            <ul className="mt-4 space-y-2 text-sm text-white/70">
               {redes.map((rede) => (
                 <li key={rede.rotulo}>
                   <a
-                    className="hover:text-marca-700"
+                    className="transition-colors hover:text-ouro-300"
                     href={rede.url}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -105,8 +115,8 @@ export async function SiteFooter() {
         )}
       </div>
 
-      <div className="border-t border-stone-200 px-4 py-6">
-        <div className="mx-auto max-w-6xl space-y-2 text-xs leading-relaxed text-stone-500">
+      <div className="relative border-t border-white/10 px-4 py-6">
+        <div className="mx-auto max-w-6xl space-y-2 text-xs leading-relaxed text-white/40">
           <p>
             Preços, condições de pagamento e disponibilidade sujeitos a alteração sem aviso
             prévio. As simulações apresentadas são estimativas e não constituem proposta de

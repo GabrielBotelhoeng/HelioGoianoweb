@@ -148,12 +148,14 @@ export default async function PaginaImovel({ params }: PageProps<'/imoveis/[slug
               />
             </div>
           ) : (
-            <div className="flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-marca-700 to-marca-900 text-marca-100">
-              <span className="text-sm tracking-widest uppercase opacity-80">
+            <div className="textura-escura flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-3xl bg-carvao-900">
+              <span className="text-[10px] font-semibold tracking-[0.22em] text-ouro-400 uppercase">
                 {rotuloTipo(imovel.tipo)}
               </span>
-              <span className="font-mono text-2xl font-semibold">{imovel.codigo}</span>
-              <span className="mt-2 text-xs opacity-75">Fotos e vídeo em breve</span>
+              <span className="font-mono text-2xl font-semibold text-white/85">
+                {imovel.codigo}
+              </span>
+              <span className="mt-2 text-xs text-white/40">Fotos e vídeo em breve</span>
             </div>
           )}
         </div>
@@ -162,7 +164,7 @@ export default async function PaginaImovel({ params }: PageProps<'/imoveis/[slug
           <p className="text-xs font-medium tracking-wide text-stone-500 uppercase">
             {rotuloTipo(imovel.tipo)} · {resumoLocalizacao(imovel)} · Código {imovel.codigo}
           </p>
-          <h1 className="mt-1 text-2xl leading-tight font-bold text-stone-900 sm:text-3xl">
+          <h1 className="mt-1 font-display text-3xl leading-tight font-extrabold tracking-tight text-carvao-900 sm:text-4xl">
             {imovel.titulo}
           </h1>
 
@@ -173,7 +175,7 @@ export default async function PaginaImovel({ params }: PageProps<'/imoveis/[slug
           )}
 
           <div className="mt-5 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-            <p className="text-3xl font-bold text-marca-800">
+            <p className="font-display text-3xl font-extrabold tracking-tight text-carvao-900 sm:text-4xl">
               {imovel.precoSobConsulta ? 'Preço sob consulta' : formatarBRL(imovel.preco)}
             </p>
 

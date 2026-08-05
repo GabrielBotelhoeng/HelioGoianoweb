@@ -47,7 +47,9 @@ export default async function PaginaSobre() {
         )}
 
         <div>
-          <h1 className="text-2xl font-bold text-stone-900 sm:text-3xl">{config.nomeExibicao}</h1>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-carvao-900 sm:text-4xl">
+            {config.nomeExibicao}
+          </h1>
           <p className="mt-1 font-medium text-marca-700">
             Corretor de imóveis · CRECI {config.creci}
           </p>

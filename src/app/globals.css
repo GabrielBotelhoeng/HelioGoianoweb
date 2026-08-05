@@ -1,14 +1,20 @@
 @import "tailwindcss";
 
 /**
- * Tokens do site — PROJETO.md seção 7: "o rosto dele é a marca, o site deve reforçar
- * isso, não esconder atrás de um layout genérico de imobiliária".
+ * Sistema visual — direção "moderno premium".
  *
- * Verde profundo (confiança, cerrado) como cor institucional; o verde do WhatsApp fica
- * reservado EXCLUSIVAMENTE para o CTA de conversa — se ele aparecer em outro lugar,
- * o botão que importa deixa de saltar.
+ * Referência cruzada de duas buscas no Pinterest: a estrutura e a paleta vêm do
+ * imobiliário de alto padrão (hero escuro, tipografia grande, acento dourado, cards
+ * claros com preço em destaque); a execução — profundidade, contraste, movimento sutil —
+ * vem do dark UI moderno. O que NÃO veio: roxo neon e glow, que é vocabulário de cripto
+ * e SaaS, não de quem vai gastar as economias num lote em Alexânia.
+ *
+ * Regra de leitura: superfície escura para narrativa (hero, CTA, prova), superfície clara
+ * para decisão (preço, entrada, parcela, ficha). Número que decide compra nunca fica
+ * sobre fundo escuro com fonte fina.
  */
 @theme {
+  /* Verde institucional — confiança, cerrado. */
   --color-marca-50: #eefaf3;
   --color-marca-100: #d5f2e1;
   --color-marca-200: #aee5c7;
@@ -21,7 +27,18 @@
   --color-marca-900: #0d3e2d;
   --color-marca-950: #052318;
 
-  /* Preço e condições de pagamento — o que o público dele lê primeiro. */
+  /* Carvão esverdeado: o escuro do hero. Preto puro achata o vídeo dele. */
+  --color-carvao-800: #10201a;
+  --color-carvao-900: #0a1512;
+  --color-carvao-950: #050c0a;
+
+  /* Dourado: acento premium. Usado com parcimônia — kicker, filete, selo. */
+  --color-ouro-300: #f0d894;
+  --color-ouro-400: #e3bd5c;
+  --color-ouro-500: #c9a227;
+  --color-ouro-600: #a3801a;
+
+  /* Preço, entrada e parcela. Herdado da fase anterior, mantido: é a cor da decisão. */
   --color-oferta-500: #d97706;
   --color-oferta-600: #b45309;
 
@@ -29,19 +46,67 @@
   --color-zap-600: #1da851;
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), var(--font-geist-sans), ui-sans-serif, sans-serif;
 }
 
-/* Fundo neutro quente: fotos de imóvel em terra vermelha de Goiás ficam melhores
-   sobre bege do que sobre cinza azulado. */
 html {
   background-color: #faf9f7;
   color: #1c1917;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Rolagem suave nas âncoras internas, respeitando quem pediu menos movimento. */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
   }
+}
+
+/**
+ * Entrada dos blocos ao rolar, em CSS puro com `animation-timeline: view()`.
+ *
+ * Sem biblioteca de animação e sem observer no cliente: são bytes que o público dele
+ * pagaria no 4G para ver um efeito. Onde o navegador não suporta, o conteúdo
+ * simplesmente aparece — o `@supports` garante que nada fique invisível.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .revelar {
+      animation: revelar-entrada linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+  }
+}
+
+@keyframes revelar-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Filete dourado usado como assinatura de seção. Um detalhe só, repetido —
+ * é o que dá unidade sem precisar de ornamento em cada bloco.
+ */
+.filete-ouro {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-ouro-500) 20%,
+    var(--color-ouro-300) 50%,
+    var(--color-ouro-500) 80%,
+    transparent
+  );
+}
+
+/* Grão sutil sobre as superfícies escuras: tira o aspecto chapado do gradiente. */
+.textura-escura {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(31, 148, 99, 0.28), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 90% 10%, rgba(201, 162, 39, 0.12), transparent 60%);
 }

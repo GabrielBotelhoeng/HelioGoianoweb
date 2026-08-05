@@ -129,9 +129,13 @@ export default async function PaginaLoteamento({ params }: PageProps<'/loteament
               />
             </div>
           ) : (
-            <div className="flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-marca-700 to-marca-900 text-marca-100">
-              <span className="text-sm tracking-widest uppercase opacity-80">Loteamento</span>
-              <span className="text-xl font-semibold">{loteamento.nome}</span>
+            <div className="textura-escura flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-3xl bg-carvao-900">
+              <span className="text-[10px] font-semibold tracking-[0.22em] text-ouro-400 uppercase">
+                Loteamento
+              </span>
+              <span className="font-display text-xl font-semibold text-white">
+                {loteamento.nome}
+              </span>
             </div>
           )}
         </div>
@@ -141,7 +145,7 @@ export default async function PaginaLoteamento({ params }: PageProps<'/loteament
             Loteamento · {loteamento.bairro ? `${loteamento.bairro}, ` : ''}
             {loteamento.cidade} - {loteamento.uf}
           </p>
-          <h1 className="mt-1 text-2xl leading-tight font-bold text-stone-900 sm:text-3xl">
+          <h1 className="mt-1 font-display text-3xl leading-tight font-extrabold tracking-tight text-carvao-900 sm:text-4xl">
             {loteamento.nome}
           </h1>
 

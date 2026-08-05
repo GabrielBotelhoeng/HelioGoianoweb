@@ -26,9 +26,9 @@ export function CardImovel({ imovel }: { imovel: ImovelListado }) {
   return (
     <Link
       href={`/imoveis/${imovel.slug}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-600"
+      className="group flex h-full flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-stone-300 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-600"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-marca-900">
+      <div className="relative aspect-[4/3] overflow-hidden bg-carvao-900">
         {capa ? (
           <Image
             src={capa.url}
@@ -40,11 +40,11 @@ export function CardImovel({ imovel }: { imovel: ImovelListado }) {
         ) : (
           // Sem foto cadastrada: bloco da marca com o código, em vez de imagem quebrada
           // ou de um ícone genérico de "sem imagem".
-          <div className="flex h-full flex-col items-center justify-center gap-1 bg-gradient-to-br from-marca-700 to-marca-900 text-marca-100">
-            <span className="text-xs font-medium tracking-widest uppercase opacity-80">
+          <div className="textura-escura flex h-full flex-col items-center justify-center gap-1.5 bg-carvao-900">
+            <span className="text-[10px] font-semibold tracking-[0.22em] text-ouro-400 uppercase">
               {rotuloTipo(imovel.tipo)}
             </span>
-            <span className="font-mono text-lg font-semibold">{imovel.codigo}</span>
+            <span className="font-mono text-lg font-semibold text-white/80">{imovel.codigo}</span>
           </div>
         )}
 
@@ -67,7 +67,7 @@ export function CardImovel({ imovel }: { imovel: ImovelListado }) {
           <p className="text-xs font-medium tracking-wide text-stone-500 uppercase">
             {rotuloTipo(imovel.tipo)} · {resumoLocalizacao(imovel)}
           </p>
-          <h3 className="mt-1 line-clamp-2 text-base leading-snug font-semibold text-stone-900">
+          <h3 className="mt-1 line-clamp-2 font-display text-base leading-snug font-semibold text-carvao-900">
             {imovel.titulo}
           </h3>
         </div>
@@ -77,7 +77,7 @@ export function CardImovel({ imovel }: { imovel: ImovelListado }) {
         )}
 
         <div className="mt-auto">
-          <p className="text-xl font-bold text-marca-800">
+          <p className="font-display text-2xl font-extrabold tracking-tight text-carvao-900">
             {imovel.precoSobConsulta ? 'Sob consulta' : formatarBRL(imovel.preco)}
           </p>
 

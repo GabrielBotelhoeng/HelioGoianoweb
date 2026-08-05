@@ -10,9 +10,12 @@ import { BotaoWhatsapp } from '@/components/botao-whatsapp'
 /**
  * Home — PROJETO.md seção 5: destaques, loteamentos e CTA do simulador.
  *
- * O site é conversor, não vitrine (seção 1). Por isso a primeira dobra vende a
- * simulação gratuita — o gancho que ele já usa em quase todo post — e não uma barra de
- * busca de portal imobiliário.
+ * O site é conversor, não vitrine (seção 1). A primeira dobra vende a simulação
+ * gratuita — o gancho que ele já usa em quase todo post — e não uma barra de busca de
+ * portal imobiliário.
+ *
+ * Ritmo visual: escuro para narrativa, claro para decisão. O visitante lê a promessa
+ * sobre fundo escuro e decide preço/entrada/parcela sobre fundo claro.
  */
 export const revalidate = 3600
 
@@ -26,41 +29,106 @@ export default async function Home() {
   const imoveis = toPlain(destaques.itens).slice(0, 6)
   const listaLoteamentos = toPlain(loteamentos)
 
+  // A consulta já ordena por `destaque` primeiro, então o topo da lista é o destaque.
+  const destaque = imoveis[0] ?? null
+
   return (
     <>
-      <section className="bg-gradient-to-br from-marca-800 to-marca-950 text-white">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:py-20">
-          <p className="text-sm font-semibold tracking-widest text-marca-200 uppercase">
-            Alexânia-GO · CRECI {config.creci} · 14 anos de mercado
-          </p>
-          <h1 className="mt-3 max-w-2xl text-3xl leading-tight font-bold sm:text-5xl">
-            Descubra hoje quanto você já consegue financiar
-          </h1>
-          <p className="mt-4 max-w-xl text-lg text-marca-100">
-            Simulação gratuita em menos de um minuto. Você informa a renda e a entrada, e o
-            site mostra a parcela e quais imóveis cabem no seu bolso.
-          </p>
+      {/* ---------- HERO ---------- */}
+      <section className="relative overflow-hidden bg-carvao-950">
+        <div className="textura-escura absolute inset-0" aria-hidden="true" />
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/simulador"
-              className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-bold text-marca-900 shadow-lg transition-transform hover:scale-[1.02]"
-            >
-              Fazer minha simulação grátis
-            </Link>
-            <BotaoWhatsapp href={linkWhatsappDireto(config)} tamanho="grande">
-              Falar com o Hélio
-            </BotaoWhatsapp>
+        <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.15fr_minmax(0,360px)] lg:items-center">
+          <div>
+            <p className="flex items-center gap-3 text-[11px] font-semibold tracking-[0.22em] text-ouro-400 uppercase">
+              <span className="h-px w-8 bg-ouro-500" aria-hidden="true" />
+              Alexânia-GO · CRECI {config.creci}
+            </p>
+
+            <h1 className="mt-6 font-display text-4xl leading-[1.05] font-extrabold tracking-tight text-white sm:text-5xl">
+              Descubra hoje quanto você{' '}
+              <span className="bg-gradient-to-r from-ouro-300 to-ouro-500 bg-clip-text text-transparent">
+                já consegue financiar
+              </span>
+            </h1>
+
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
+              Simulação gratuita em menos de um minuto. Você informa a renda e a entrada, e o
+              site mostra a parcela e quais imóveis cabem no seu bolso.
+            </p>
+
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/simulador"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-carvao-950 shadow-2xl shadow-black/40 transition-transform hover:scale-[1.02]"
+              >
+                Fazer minha simulação grátis
+                <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
+                  →
+                </span>
+              </Link>
+              <BotaoWhatsapp href={linkWhatsappDireto(config)} tamanho="grande">
+                Falar com o Hélio
+              </BotaoWhatsapp>
+            </div>
+
+            <p className="mt-5 text-xs text-white/45">
+              Estimativa, não é proposta de crédito e não substitui a análise do banco.
+            </p>
+
+            {/* Prova de solidez: 14 anos, escritório físico, atuação local. */}
+            <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-6 border-t border-white/10 pt-8 sm:grid-cols-3">
+              <Numero valor="14+" rotulo="anos de mercado" />
+              <Numero valor={config.creci} rotulo="CRECI ativo" />
+              <Numero valor="Av. Brasília" rotulo="escritório em Alexânia" />
+            </dl>
           </div>
 
-          <p className="mt-4 text-xs text-marca-200">
-            A simulação é uma estimativa e não substitui a análise do banco.
-          </p>
+          {/*
+            Vitrine do hero: um imóvel REAL da carteira, com preço real, não um mockup
+            decorativo. Preenche a composição e ainda é um caminho a mais para a página do
+            imóvel. Escondida no mobile — lá o que importa é o CTA aparecer sem rolagem.
+          */}
+          {destaque && (
+            <Link
+              href={`/imoveis/${destaque.slug}`}
+              className="group relative hidden rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-sm transition-colors hover:border-ouro-500/40 lg:block"
+            >
+              <span className="text-[10px] font-semibold tracking-[0.22em] text-ouro-400 uppercase">
+                Em destaque
+              </span>
+
+              <p className="mt-4 font-mono text-xs text-white/45">{destaque.codigo}</p>
+              <h2 className="mt-1 font-display text-xl leading-snug font-semibold text-white">
+                {destaque.titulo}
+              </h2>
+
+              <p className="mt-4 font-display text-3xl font-extrabold text-white">
+                {destaque.precoSobConsulta ? 'Sob consulta' : formatarBRL(destaque.preco)}
+              </p>
+
+              {destaque.entradaMinima && (
+                <p className="mt-1 text-sm font-semibold text-ouro-300">
+                  Entrada a partir de {formatarBRL(destaque.entradaMinima)}
+                </p>
+              )}
+
+              <p className="mt-6 flex items-center gap-2 text-sm font-medium text-white/70">
+                Ver este imóvel
+                <span
+                  aria-hidden="true"
+                  className="text-ouro-400 transition-transform group-hover:translate-x-1"
+                >
+                  →
+                </span>
+              </p>
+            </Link>
+          )}
         </div>
       </section>
 
-      {/* As três perguntas que se repetem nos comentários dos posts (seção 1). */}
-      <section className="mx-auto max-w-6xl px-4 py-12">
+      {/* ---------- AS TRÊS PERGUNTAS DOS COMENTÁRIOS ---------- */}
+      <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="grid gap-4 sm:grid-cols-3">
           <CartaoResposta titulo="Onde fica?">
             Cada imóvel tem vídeo, referências do bairro e o que tem por perto — escola,
@@ -77,10 +145,18 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ---------- IMÓVEIS: superfície clara, é onde se decide ---------- */}
       {imoveis.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-12">
+        <section className="mx-auto max-w-6xl px-4 pb-16">
           <div className="flex items-end justify-between gap-4">
-            <h2 className="text-2xl font-bold text-stone-900">Imóveis disponíveis</h2>
+            <div>
+              <p className="text-[11px] font-semibold tracking-[0.22em] text-oferta-600 uppercase">
+                Carteira atual
+              </p>
+              <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-stone-900">
+                Imóveis disponíveis
+              </h2>
+            </div>
             <Link
               href="/imoveis"
               className="shrink-0 text-sm font-semibold text-marca-700 hover:underline"
@@ -89,76 +165,105 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {imoveis.map((imovel) => (
-              <CardImovel key={imovel.id} imovel={imovel} />
+              <div key={imovel.id} className="revelar">
+                <CardImovel imovel={imovel} />
+              </div>
             ))}
           </div>
         </section>
       )}
 
+      {/* ---------- LOTEAMENTOS: volta ao escuro, é narrativa ---------- */}
       {listaLoteamentos.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-12">
-          <h2 className="text-2xl font-bold text-stone-900">Loteamentos em Alexânia</h2>
-          <p className="mt-1 text-stone-600">
-            Entrada facilitada e parcelamento direto, com infraestrutura entregue.
-          </p>
+        <section className="relative overflow-hidden bg-carvao-900">
+          <div className="textura-escura absolute inset-0 opacity-70" aria-hidden="true" />
 
-          <div className="mt-6 grid gap-5 sm:grid-cols-2">
-            {listaLoteamentos.map((loteamento) => {
-              const infra = resumoInfraestrutura(loteamento)
+          <div className="relative mx-auto max-w-6xl px-4 py-16">
+            <p className="text-[11px] font-semibold tracking-[0.22em] text-ouro-400 uppercase">
+              Terreno próprio
+            </p>
+            <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-white">
+              Loteamentos em Alexânia
+            </h2>
+            <p className="mt-2 max-w-xl text-white/60">
+              Entrada facilitada e parcelamento direto, com infraestrutura entregue.
+            </p>
 
-              return (
-                <Link
-                  key={loteamento.id}
-                  href={`/loteamentos/${loteamento.slug}`}
-                  className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-                >
-                  <h3 className="text-lg font-semibold text-stone-900">{loteamento.nome}</h3>
-                  <p className="mt-0.5 text-sm text-stone-500">
-                    {loteamento.bairro ? `${loteamento.bairro}, ` : ''}
-                    {loteamento.cidade} - {loteamento.uf}
-                  </p>
+            <div className="mt-8 grid gap-5 sm:grid-cols-2">
+              {listaLoteamentos.map((loteamento) => {
+                const infra = resumoInfraestrutura(loteamento)
 
-                  {infra && <p className="mt-3 text-sm font-medium text-marca-700">{infra}</p>}
-
-                  {(loteamento.entradaMinima || loteamento.parcelaApartirDe) && (
-                    <p className="mt-2 text-sm font-semibold text-oferta-600">
-                      {loteamento.entradaMinima &&
-                        `Entrada a partir de ${formatarBRL(loteamento.entradaMinima)}`}
-                      {loteamento.entradaMinima && loteamento.parcelaApartirDe && ' · '}
-                      {loteamento.parcelaApartirDe &&
-                        `Parcelas de ${formatarBRL(loteamento.parcelaApartirDe)}`}
+                return (
+                  <Link
+                    key={loteamento.id}
+                    href={`/loteamentos/${loteamento.slug}`}
+                    className="revelar group rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-colors hover:border-ouro-500/40 hover:bg-white/[0.07]"
+                  >
+                    <h3 className="font-display text-xl font-semibold text-white">
+                      {loteamento.nome}
+                    </h3>
+                    <p className="mt-1 text-sm text-white/50">
+                      {loteamento.bairro ? `${loteamento.bairro}, ` : ''}
+                      {loteamento.cidade} - {loteamento.uf}
                     </p>
-                  )}
 
-                  <p className="mt-3 text-sm text-stone-600">
-                    {loteamento._count.imoveis > 0
-                      ? `${loteamento._count.imoveis} ${loteamento._count.imoveis === 1 ? 'imóvel disponível' : 'imóveis disponíveis'}`
-                      : 'Consulte a disponibilidade'}
-                  </p>
-                </Link>
-              )
-            })}
+                    {infra && (
+                      <p className="mt-4 text-sm font-medium text-marca-300">{infra}</p>
+                    )}
+
+                    {(loteamento.entradaMinima || loteamento.parcelaApartirDe) && (
+                      <p className="mt-2 text-sm font-semibold text-ouro-300">
+                        {loteamento.entradaMinima &&
+                          `Entrada a partir de ${formatarBRL(loteamento.entradaMinima)}`}
+                        {loteamento.entradaMinima && loteamento.parcelaApartirDe && ' · '}
+                        {loteamento.parcelaApartirDe &&
+                          `Parcelas de ${formatarBRL(loteamento.parcelaApartirDe)}`}
+                      </p>
+                    )}
+
+                    <p className="mt-5 flex items-center gap-2 text-sm text-white/60">
+                      {loteamento._count.imoveis > 0
+                        ? `${loteamento._count.imoveis} ${loteamento._count.imoveis === 1 ? 'imóvel disponível' : 'imóveis disponíveis'}`
+                        : 'Consulte a disponibilidade'}
+                      <span
+                        aria-hidden="true"
+                        className="text-ouro-400 transition-transform group-hover:translate-x-1"
+                      >
+                        →
+                      </span>
+                    </p>
+                  </Link>
+                )
+              })}
+            </div>
           </div>
         </section>
       )}
 
-      <section className="mx-auto max-w-6xl px-4 pb-16">
-        <div className="rounded-2xl bg-marca-800 p-6 text-center text-white sm:p-10">
-          <h2 className="text-xl font-bold sm:text-2xl">Ainda dá para sair do aluguel este ano</h2>
-          <p className="mx-auto mt-2 max-w-xl text-marca-100">
-            Faça a simulação e descubra a parcela. Se preferir, me mande uma mensagem que eu
-            faço para você, sem compromisso.
-          </p>
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link
-              href="/simulador"
-              className="inline-flex items-center justify-center rounded-full bg-white px-6 py-4 text-base font-bold text-marca-900"
-            >
-              Simular financiamento
-            </Link>
-            <BotaoWhatsapp href={linkWhatsappDireto(config)} tamanho="grande" />
+      {/* ---------- CTA FINAL ---------- */}
+      <section className="mx-auto max-w-6xl px-4 py-16">
+        <div className="relative overflow-hidden rounded-3xl bg-carvao-950 p-8 text-center sm:p-14">
+          <div className="textura-escura absolute inset-0" aria-hidden="true" />
+          <div className="relative">
+            <div className="filete-ouro mx-auto h-px w-24" aria-hidden="true" />
+            <h2 className="mt-6 font-display text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
+              Ainda dá para sair do aluguel este ano
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-white/65">
+              Faça a simulação e descubra a parcela. Se preferir, me mande uma mensagem que
+              eu faço para você, sem compromisso.
+            </p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link
+                href="/simulador"
+                className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-bold text-carvao-950 transition-transform hover:scale-[1.02]"
+              >
+                Simular financiamento
+              </Link>
+              <BotaoWhatsapp href={linkWhatsappDireto(config)} tamanho="grande" />
+            </div>
           </div>
         </div>
       </section>
@@ -166,11 +271,23 @@ export default async function Home() {
   )
 }
 
+function Numero({ valor, rotulo }: { valor: string; rotulo: string }) {
+  return (
+    <div>
+      <dt className="sr-only">{rotulo}</dt>
+      <dd>
+        <span className="block font-display text-2xl font-extrabold text-white">{valor}</span>
+        <span className="mt-1 block text-xs tracking-wide text-white/45 uppercase">{rotulo}</span>
+      </dd>
+    </div>
+  )
+}
+
 function CartaoResposta({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-      <h2 className="text-base font-semibold text-marca-800">{titulo}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-stone-600">{children}</p>
+    <div className="revelar rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+      <h2 className="font-display text-lg font-semibold text-carvao-900">{titulo}</h2>
+      <p className="mt-3 text-sm leading-relaxed text-stone-600">{children}</p>
     </div>
   )
 }
