@@ -94,8 +94,14 @@ type ImovelSeo = {
   midias: { url: string }[]
 }
 
-/** RealEstateListing da página do imóvel. */
-export function jsonLdImovel(imovel: ImovelSeo, config: Config) {
+/**
+ * RealEstateListing da página do imóvel.
+ *
+ * Não recebe a configuração: o corretor entra por referência (`@id` do nó
+ * `RealEstateAgent` emitido no rodapé), que é o jeito correto de ligar os dois nós sem
+ * duplicar nome, telefone e CRECI em cada página.
+ */
+export function jsonLdImovel(imovel: ImovelSeo) {
   const url = urlAbsoluta(`/imoveis/${imovel.slug}`)
   const area = imovel.areaConstruidaM2 ?? imovel.areaTerrenoM2
 

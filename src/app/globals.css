@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/**
+ * Tokens do site — PROJETO.md seção 7: "o rosto dele é a marca, o site deve reforçar
+ * isso, não esconder atrás de um layout genérico de imobiliária".
+ *
+ * Verde profundo (confiança, cerrado) como cor institucional; o verde do WhatsApp fica
+ * reservado EXCLUSIVAMENTE para o CTA de conversa — se ele aparecer em outro lugar,
+ * o botão que importa deixa de saltar.
+ */
+@theme {
+  --color-marca-50: #eefaf3;
+  --color-marca-100: #d5f2e1;
+  --color-marca-200: #aee5c7;
+  --color-marca-300: #78d0a5;
+  --color-marca-400: #43b380;
+  --color-marca-500: #1f9463;
+  --color-marca-600: #12774f;
+  --color-marca-700: #0f5f41;
+  --color-marca-800: #0f4b35;
+  --color-marca-900: #0d3e2d;
+  --color-marca-950: #052318;
+
+  /* Preço e condições de pagamento — o que o público dele lê primeiro. */
+  --color-oferta-500: #d97706;
+  --color-oferta-600: #b45309;
+
+  --color-zap-500: #25d366;
+  --color-zap-600: #1da851;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Fundo neutro quente: fotos de imóvel em terra vermelha de Goiás ficam melhores
+   sobre bege do que sobre cinza azulado. */
+html {
+  background-color: #faf9f7;
+  color: #1c1917;
+  -webkit-tap-highlight-color: transparent;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Rolagem suave nas âncoras internas, respeitando quem pediu menos movimento. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

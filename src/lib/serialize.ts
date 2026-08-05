@@ -64,12 +64,5 @@ export function toPlain<T>(value: T): Plain<T> {
   return value as Plain<T>
 }
 
-/** Formata BRL para exibição. Centraliza para não espalhar Intl pelo código. */
-export function formatarBRL(valor: number | null | undefined): string {
-  if (valor === null || valor === undefined) return 'Sob consulta'
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    maximumFractionDigits: 0,
-  }).format(valor)
-}
+// `formatarBRL` vive em `@/lib/formato`: este módulo importa o Prisma em runtime e não
+// pode ser arrastado para o bundle do cliente só por causa de uma formatação.

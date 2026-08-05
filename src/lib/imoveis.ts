@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import type { Plain } from '@/lib/serialize'
 import type { Prisma } from '@/generated/prisma/client'
 
 /**
@@ -208,6 +209,34 @@ export async function buscarImovelPorSlug(slug: string) {
     },
   })
 }
+
+/**
+ * Universo do matching do simulador (PROJETO.md seção 4, passo 4).
+ *
+ * Só entra imóvel com preço conhecido: "sob consulta" não pode ser comparado com o
+ * poder de compra, e prometer compatibilidade sem preço enganaria o visitante.
+ * Devolve no formato de card porque o resultado é renderizado como card.
+ */
+export async function listarImoveisParaMatching() {
+  return prisma.imovel.findMany({
+    where: {
+      status: 'DISPONIVEL',
+      publicadoEm: { not: null },
+      precoSobConsulta: false,
+      preco: { not: null },
+    },
+    select: SELECAO_CARD,
+    orderBy: { preco: 'asc' },
+  })
+}
+
+/**
+ * Formatos que os componentes consomem: já em `number`, depois de `toPlain`.
+ * Deriva das próprias consultas, então acrescentar um campo em `SELECAO_CARD` ou no
+ * `include` do detalhe propaga o tipo sozinho.
+ */
+export type ImovelListado = Plain<Awaited<ReturnType<typeof buscarImoveis>>['itens'][number]>
+export type ImovelDetalhado = Plain<NonNullable<Awaited<ReturnType<typeof buscarImovelPorSlug>>>>
 
 /** Slugs publicados, para `generateStaticParams` e para o sitemap. */
 export async function listarSlugsPublicados() {
