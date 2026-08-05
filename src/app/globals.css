@@ -45,8 +45,9 @@
   --color-zap-500: #25d366;
   --color-zap-600: #1da851;
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-sora), var(--font-geist-sans), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-sans), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
 }
 
 html {

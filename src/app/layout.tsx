@@ -1,25 +1,43 @@
 import type { Metadata } from 'next'
-import { Geist, Sora } from 'next/font/google'
+import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
+import { ProvedorMotion } from '@/components/animacao/provedor-motion'
 import { siteUrl } from '@/lib/seo'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+/**
+ * Tipografia da direção "Cerrado Noir".
+ *
+ * Geist saiu de cena: é a fonte padrão do template do Next e carrega exatamente a
+ * neutralidade que faz um site parecer gerado. As três abaixo têm função distinta e
+ * nenhuma é escolha default.
+ */
+
+/** Display: grotesca variável de contraste alto. Carrega preço e manchete. */
+const bricolage = Bricolage_Grotesque({
+  variable: '--font-display',
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  display: 'swap',
+})
+
+/** Corpo: humanista discreta, legível em parágrafo longo sem competir com a display. */
+const instrument = Instrument_Sans({
+  variable: '--font-sans',
   subsets: ['latin'],
   display: 'swap',
 })
 
 /**
- * Display das manchetes. Sora tem desenho contemporâneo, quase técnico, sem cair na
- * serifada de luxo clássico — que soaria deslocada para um lote de R$ 35 mil.
- * Só dois pesos: cada peso é um arquivo a mais para baixar no 4G.
+ * Mono: só para o código do imóvel (HG-0001). É a âncora de identidade — o código
+ * aparece no card, na página e na mensagem de WhatsApp, sempre com a mesma cara de
+ * selo de cartório.
  */
-const sora = Sora({
-  variable: '--font-sora',
+const jetbrains = JetBrains_Mono({
+  variable: '--font-mono',
   subsets: ['latin'],
-  weight: ['600', '800'],
+  weight: ['500'],
   display: 'swap',
 })
 
@@ -47,12 +65,14 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${sora.variable} h-full antialiased`}
+      className={`${instrument.variable} ${bricolage.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-[#faf9f7] font-sans text-stone-900">
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <ProvedorMotion>
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+        </ProvedorMotion>
       </body>
     </html>
   )

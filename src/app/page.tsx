@@ -6,6 +6,14 @@ import { toPlain } from '@/lib/serialize'
 import { formatarBRL } from '@/lib/formato'
 import { CardImovel } from '@/components/card-imovel'
 import { BotaoWhatsapp } from '@/components/botao-whatsapp'
+import { TextoRevelado } from '@/components/animacao/texto-revelado'
+import { NumeroAnimado } from '@/components/animacao/numero-animado'
+import { CartaoHolofote } from '@/components/animacao/cartao-holofote'
+import {
+  CascataAoRolar,
+  EntraAoRolar,
+  ItemCascata,
+} from '@/components/animacao/entra-ao-rolar'
 
 /**
  * Home — PROJETO.md seção 5: destaques, loteamentos e CTA do simulador.
@@ -46,10 +54,11 @@ export default async function Home() {
             </p>
 
             <h1 className="mt-6 font-display text-4xl leading-[1.05] font-extrabold tracking-tight text-white sm:text-5xl">
-              Descubra hoje quanto você{' '}
-              <span className="bg-gradient-to-r from-ouro-300 to-ouro-500 bg-clip-text text-transparent">
-                já consegue financiar
-              </span>
+              <TextoRevelado
+                texto="Descubra hoje quanto você"
+                destaque="já consegue financiar"
+                classNameDestaque="bg-gradient-to-r from-ouro-300 to-ouro-500 bg-clip-text text-transparent"
+              />
             </h1>
 
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
@@ -78,9 +87,11 @@ export default async function Home() {
 
             {/* Prova de solidez: 14 anos, escritório físico, atuação local. */}
             <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-6 border-t border-white/10 pt-8 sm:grid-cols-3">
-              <Numero valor="14+" rotulo="anos de mercado" />
-              <Numero valor={config.creci} rotulo="CRECI ativo" />
-              <Numero valor="Av. Brasília" rotulo="escritório em Alexânia" />
+              <Numero rotulo="anos de mercado">
+                <NumeroAnimado valor={14} sufixo="+" />
+              </Numero>
+              <Numero rotulo="CRECI ativo">{config.creci}</Numero>
+              <Numero rotulo="escritório em Alexânia">Av. Brasília</Numero>
             </dl>
           </div>
 
@@ -90,46 +101,48 @@ export default async function Home() {
             imóvel. Escondida no mobile — lá o que importa é o CTA aparecer sem rolagem.
           */}
           {destaque && (
-            <Link
-              href={`/imoveis/${destaque.slug}`}
-              className="group relative hidden rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-sm transition-colors hover:border-ouro-500/40 lg:block"
-            >
-              <span className="text-[10px] font-semibold tracking-[0.22em] text-ouro-400 uppercase">
-                Em destaque
-              </span>
-
-              <p className="mt-4 font-mono text-xs text-white/45">{destaque.codigo}</p>
-              <h2 className="mt-1 font-display text-xl leading-snug font-semibold text-white">
-                {destaque.titulo}
-              </h2>
-
-              <p className="mt-4 font-display text-3xl font-extrabold text-white">
-                {destaque.precoSobConsulta ? 'Sob consulta' : formatarBRL(destaque.preco)}
-              </p>
-
-              {destaque.entradaMinima && (
-                <p className="mt-1 text-sm font-semibold text-ouro-300">
-                  Entrada a partir de {formatarBRL(destaque.entradaMinima)}
-                </p>
-              )}
-
-              <p className="mt-6 flex items-center gap-2 text-sm font-medium text-white/70">
-                Ver este imóvel
-                <span
-                  aria-hidden="true"
-                  className="text-ouro-400 transition-transform group-hover:translate-x-1"
-                >
-                  →
+            <CartaoHolofote className="hidden rounded-3xl border border-white/10 bg-white/[0.06] backdrop-blur-sm transition-colors hover:border-ouro-500/40 lg:block">
+              <Link href={`/imoveis/${destaque.slug}`} className="block p-6">
+                <span className="text-[10px] font-semibold tracking-[0.22em] text-ouro-400 uppercase">
+                  Em destaque
                 </span>
-              </p>
-            </Link>
+
+                {/* Selo de cartório: o código sempre em mono, aqui, no card e no WhatsApp. */}
+                <p className="mt-4 font-mono text-xs tracking-widest text-white/45">
+                  {destaque.codigo}
+                </p>
+                <h2 className="mt-1 font-display text-xl leading-snug font-semibold text-white">
+                  {destaque.titulo}
+                </h2>
+
+                <p className="mt-4 font-display text-4xl leading-none font-extrabold tracking-tight text-white">
+                  {destaque.precoSobConsulta ? 'Sob consulta' : formatarBRL(destaque.preco)}
+                </p>
+
+                {destaque.entradaMinima && (
+                  <p className="mt-2 text-sm font-semibold text-ouro-300">
+                    Entrada a partir de {formatarBRL(destaque.entradaMinima)}
+                  </p>
+                )}
+
+                <p className="mt-6 flex items-center gap-2 text-sm font-medium text-white/70">
+                  Ver este imóvel
+                  <span
+                    aria-hidden="true"
+                    className="text-ouro-400 transition-transform group-hover:translate-x-1"
+                  >
+                    →
+                  </span>
+                </p>
+              </Link>
+            </CartaoHolofote>
           )}
         </div>
       </section>
 
       {/* ---------- AS TRÊS PERGUNTAS DOS COMENTÁRIOS ---------- */}
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <CascataAoRolar className="grid gap-4 sm:grid-cols-3">
           <CartaoResposta titulo="Onde fica?">
             Cada imóvel tem vídeo, referências do bairro e o que tem por perto — escola,
             comércio, fórum.
@@ -142,7 +155,7 @@ export default async function Home() {
             Um toque no WhatsApp já chega com o código do imóvel. Escritório na Av. Brasília,
             em Alexânia.
           </CartaoResposta>
-        </div>
+        </CascataAoRolar>
       </section>
 
       {/* ---------- IMÓVEIS: superfície clara, é onde se decide ---------- */}
@@ -165,13 +178,13 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <CascataAoRolar className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {imoveis.map((imovel) => (
-              <div key={imovel.id} className="revelar">
+              <ItemCascata key={imovel.id} className="h-full">
                 <CardImovel imovel={imovel} />
-              </div>
+              </ItemCascata>
             ))}
-          </div>
+          </CascataAoRolar>
         </section>
       )}
 
@@ -191,7 +204,7 @@ export default async function Home() {
               Entrada facilitada e parcelamento direto, com infraestrutura entregue.
             </p>
 
-            <div className="mt-8 grid gap-5 sm:grid-cols-2">
+            <CascataAoRolar className="mt-8 grid gap-5 sm:grid-cols-2">
               {listaLoteamentos.map((loteamento) => {
                 const infra = resumoInfraestrutura(loteamento)
 
@@ -199,7 +212,7 @@ export default async function Home() {
                   <Link
                     key={loteamento.id}
                     href={`/loteamentos/${loteamento.slug}`}
-                    className="revelar group rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-colors hover:border-ouro-500/40 hover:bg-white/[0.07]"
+                    className="group block rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-colors hover:border-ouro-500/40 hover:bg-white/[0.07]"
                   >
                     <h3 className="font-display text-xl font-semibold text-white">
                       {loteamento.nome}
@@ -237,14 +250,14 @@ export default async function Home() {
                   </Link>
                 )
               })}
-            </div>
+            </CascataAoRolar>
           </div>
         </section>
       )}
 
       {/* ---------- CTA FINAL ---------- */}
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="relative overflow-hidden rounded-3xl bg-carvao-950 p-8 text-center sm:p-14">
+        <EntraAoRolar className="relative overflow-hidden rounded-3xl bg-carvao-950 p-8 text-center sm:p-14">
           <div className="textura-escura absolute inset-0" aria-hidden="true" />
           <div className="relative">
             <div className="filete-ouro mx-auto h-px w-24" aria-hidden="true" />
@@ -265,18 +278,18 @@ export default async function Home() {
               <BotaoWhatsapp href={linkWhatsappDireto(config)} tamanho="grande" />
             </div>
           </div>
-        </div>
+        </EntraAoRolar>
       </section>
     </>
   )
 }
 
-function Numero({ valor, rotulo }: { valor: string; rotulo: string }) {
+function Numero({ children, rotulo }: { children: React.ReactNode; rotulo: string }) {
   return (
     <div>
       <dt className="sr-only">{rotulo}</dt>
       <dd>
-        <span className="block font-display text-2xl font-extrabold text-white">{valor}</span>
+        <span className="block font-display text-2xl font-extrabold text-white">{children}</span>
         <span className="mt-1 block text-xs tracking-wide text-white/45 uppercase">{rotulo}</span>
       </dd>
     </div>
@@ -285,9 +298,9 @@ function Numero({ valor, rotulo }: { valor: string; rotulo: string }) {
 
 function CartaoResposta({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <div className="revelar rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+    <ItemCascata className="h-full rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
       <h2 className="font-display text-lg font-semibold text-carvao-900">{titulo}</h2>
       <p className="mt-3 text-sm leading-relaxed text-stone-600">{children}</p>
-    </div>
+    </ItemCascata>
   )
 }
