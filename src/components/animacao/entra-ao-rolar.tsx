@@ -1,89 +1,58 @@
-'use client'
-
-import { LazyMotion, domAnimation, m } from 'motion/react'
-
 /**
- * Envelope de entrada ao rolar.
+ * Entrada de blocos ao rolar — CSS scroll-driven, sem JavaScript.
  *
- * Aceita Server Components como `children` — só o envelope vira cliente, o conteúdo
- * (que consulta o banco) continua no servidor. É o padrão que evita transformar a
- * página inteira em client component só para animar.
+ * SERVER COMPONENTS: nenhum 'use client', nenhum KB no bundle. O navegador liga a
+ * animação à posição do elemento na viewport via `animation-timeline: view()`.
  *
- * `once: true` de propósito: animação que repete a cada rolagem cansa e atrapalha
- * quem sobe e desce a página comparando dois imóveis.
+ * POR QUE SAIU DO MOTION: com `whileInView`, o conteúdo nasce com `opacity: 0`
+ * aplicado por JavaScript. Se o script falhar, demorar, ou a aba estiver em segundo
+ * plano, o bloco fica invisível — e aqui dentro moram preço, entrada e parcela.
+ * O CSS está sob `@supports`, então onde o recurso não existe o conteúdo aparece
+ * normalmente, sem estado intermediário.
  *
- * Preferência de movimento reduzido: tratada pelo `MotionConfig` global. Aqui a árvore
- * é sempre a mesma, para o HTML do servidor bater com o do cliente.
+ * A API é a mesma de antes; as páginas não precisaram mudar.
  */
+
 export function EntraAoRolar({
   children,
-  atraso = 0,
   className = '',
 }: {
   children: React.ReactNode
-  atraso?: number
   className?: string
 }) {
-  return (
-    <LazyMotion features={domAnimation}>
-      <m.div
-        className={className}
-        initial={{ opacity: 0, y: 28 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.6, delay: atraso, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {children}
-      </m.div>
-    </LazyMotion>
-  )
+  return <div className={`revelar ${className}`}>{children}</div>
 }
 
 /**
- * Versão em cascata: os filhos entram em sequência.
- * `staggerChildren` no pai evita repetir `transition` em cada item.
+ * Cascata: os filhos diretos entram em sequência.
+ * O escalonamento vem de `--indice` em cada item (ver `ItemCascata`).
  */
 export function CascataAoRolar({
   children,
   className = '',
-  intervalo = 0.08,
 }: {
   children: React.ReactNode
   className?: string
-  intervalo?: number
 }) {
-  return (
-    <LazyMotion features={domAnimation}>
-      <m.div
-        className={className}
-        initial="oculto"
-        whileInView="visivel"
-        viewport={{ once: true, amount: 0.15 }}
-        variants={{ visivel: { transition: { staggerChildren: intervalo } } }}
-      >
-        {children}
-      </m.div>
-    </LazyMotion>
-  )
+  return <div className={`cascata ${className}`}>{children}</div>
 }
 
-/** Item da cascata. Precisa estar dentro de `CascataAoRolar`. */
+/**
+ * Item da cascata. `indice` controla o atraso; sem ele, todos entram juntos.
+ * Precisa ser filho direto de `CascataAoRolar` para o seletor `.cascata > *` pegar.
+ */
 export function ItemCascata({
   children,
   className = '',
+  indice = 0,
 }: {
   children: React.ReactNode
   className?: string
+  indice?: number
 }) {
   return (
-    <m.div
-      className={className}
-      variants={{
-        oculto: { opacity: 0, y: 24 },
-        visivel: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
-      }}
-    >
+    <div className={className} style={{ '--indice': indice } as React.CSSProperties}>
       {children}
-    </m.div>
+    </div>
   )
 }

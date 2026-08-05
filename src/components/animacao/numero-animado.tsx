@@ -6,8 +6,13 @@ import { useInView, useMotionValue, useSpring, useReducedMotion } from 'motion/r
 /**
  * Contador que sobe até o valor quando entra na viewport.
  *
- * Usa MotionValue escrevendo direto no DOM via ref: o número muda 60 vezes por segundo
- * e passar isso por estado do React re-renderizaria o componente a cada quadro.
+ * O valor final vem renderizado do servidor e só é zerado quando a contagem vai mesmo
+ * acontecer. Motivo: com a aba em segundo plano o Chrome congela
+ * requestAnimationFrame — o contador zerava e ficava parado em "0+" até a aba voltar
+ * ao primeiro plano. Reproduzido no navegador.
+ *
+ * Usa MotionValue escrevendo direto no DOM: o número muda a cada quadro e passar isso
+ * por estado do React re-renderizaria o componente 60 vezes por segundo.
  */
 export function NumeroAnimado({
   valor,
@@ -25,29 +30,47 @@ export function NumeroAnimado({
   const bruto = useMotionValue(0)
   const suavizado = useSpring(bruto, { duration: 1400, bounce: 0 })
 
+  const textoFinal = `${valor.toLocaleString('pt-BR')}${sufixo}`
+
   useEffect(() => {
     if (naTela) bruto.set(valor)
   }, [naTela, valor, bruto])
 
   useEffect(() => {
-    // O valor final já está no HTML renderizado no servidor: é conteúdo, não enfeite.
-    // Quem tem "reduzir movimento" ligado — ou está sem JS — lê o número direto.
+    // Sem animação: o número já está correto no HTML, nada a fazer.
     if (reduzir) return
 
-    // Zera só depois de montado, para a contagem começar do zero sem alterar o HTML
-    // inicial (mexer nele causaria divergência de hidratação).
-    if (referencia.current) referencia.current.textContent = `0${sufixo}`
+    const elemento = referencia.current
+    if (!elemento) return
 
-    return suavizado.on('change', (atual) => {
-      if (referencia.current) {
-        referencia.current.textContent = `${Math.round(atual).toLocaleString('pt-BR')}${sufixo}`
-      }
+    // Só zera quando a página está visível de fato. Zerar com a aba oculta deixaria
+    // o contador travado em "0" — o quadro seguinte nunca chegaria.
+    if (document.visibilityState !== 'visible') return
+
+    elemento.textContent = `0${sufixo}`
+
+    const cancelar = suavizado.on('change', (atual) => {
+      elemento.textContent = `${Math.round(atual).toLocaleString('pt-BR')}${sufixo}`
     })
-  }, [suavizado, sufixo, reduzir])
+
+    // Rede de segurança: se a aba for escondida no meio da contagem, ao voltar o
+    // número é fixado no valor final em vez de ficar parado em um passo intermediário.
+    const aoVoltar = () => {
+      if (document.visibilityState === 'visible' && naTela) {
+        elemento.textContent = textoFinal
+      }
+    }
+    document.addEventListener('visibilitychange', aoVoltar)
+
+    return () => {
+      cancelar()
+      document.removeEventListener('visibilitychange', aoVoltar)
+    }
+  }, [suavizado, sufixo, reduzir, naTela, textoFinal])
 
   return (
     <span ref={referencia} className={className}>
-      {`${valor.toLocaleString('pt-BR')}${sufixo}`}
+      {textoFinal}
     </span>
   )
 }

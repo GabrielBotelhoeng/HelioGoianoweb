@@ -1,19 +1,20 @@
-'use client'
-
-import { LazyMotion, domAnimation, m } from 'motion/react'
+import { Fragment } from 'react'
 
 /**
- * Manchete que sobe palavra por palavra por trás de uma máscara.
+ * Manchete revelada palavra por palavra por trás de uma máscara.
  *
- * É a sequência de entrada única do site — a direção pede um momento forte, não
- * micro-movimento espalhado. Por isso só existe no hero.
+ * SERVER COMPONENT, de propósito — nem 'use client', nem JavaScript. A animação é
+ * CSS (`.palavra-revelada` em globals.css), com o atraso de cada palavra vindo da
+ * variável `--indice`.
  *
- * `LazyMotion` + `m` carrega ~6 KB em vez dos ~34 KB do bundle completo do Motion.
- * O público acessa em 4G de cidade pequena; a diferença é real.
+ * POR QUE NÃO MOTION AQUI: esta é a manchete do hero, ou seja, o LCP da página. Com
+ * Motion, o estado inicial era `translateY(110%)` aplicado por JavaScript — se o
+ * script demorasse, falhasse, ou a aba abrisse em segundo plano (o Chrome congela
+ * requestAnimationFrame nesse caso), o visitante via o título cortado pela metade.
+ * Reproduzido no navegador: as palavras congelaram em translateY(26px) e (53px).
  *
- * A preferência de "reduzir movimento" é tratada globalmente pelo `MotionConfig`
- * (ver `provedor-motion.tsx`). NÃO bifurque a árvore aqui com `useReducedMotion`:
- * o servidor não conhece a preferência e o HTML sairia diferente do cliente.
+ * Em CSS, sem animação o texto simplesmente aparece. É a diferença entre um efeito
+ * que enfeita e um efeito que esconde a promessa da página.
  */
 export function TextoRevelado({
   texto,
@@ -29,57 +30,47 @@ export function TextoRevelado({
 }) {
   const palavras = texto.split(' ')
   const palavrasDestaque = destaque ? destaque.split(' ') : []
-  const total = palavras.length + palavrasDestaque.length
 
   return (
-    <LazyMotion features={domAnimation}>
-      <span className={className}>
-        {palavras.map((palavra, indice) => (
-          <Palavra key={`base-${indice}`} indice={indice} total={total}>
-            {palavra}
-          </Palavra>
-        ))}
-        {palavrasDestaque.map((palavra, indice) => (
-          <Palavra
-            key={`destaque-${indice}`}
-            indice={palavras.length + indice}
-            total={total}
-            className={classNameDestaque}
-          >
-            {palavra}
-          </Palavra>
-        ))}
-      </span>
-    </LazyMotion>
+    <span className={className}>
+      {palavras.map((palavra, indice) => (
+        <Palavra key={`base-${indice}`} indice={indice}>
+          {palavra}
+        </Palavra>
+      ))}
+      {palavrasDestaque.map((palavra, indice) => (
+        <Palavra
+          key={`destaque-${indice}`}
+          indice={palavras.length + indice}
+          className={classNameDestaque}
+        >
+          {palavra}
+        </Palavra>
+      ))}
+    </span>
   )
 }
 
 function Palavra({
   children,
   indice,
-  total,
   className = '',
 }: {
   children: string
   indice: number
-  total: number
   className?: string
 }) {
-  // A cascata inteira dura no máximo ~0.5s: manchete que demora a aparecer atrasa a
-  // leitura da promessa, que é justamente o que converte.
-  const atraso = (indice / Math.max(total, 1)) * 0.5
-
   return (
-    // `overflow-hidden` é a máscara; o span interno desliza por trás dela.
-    <span className="inline-block overflow-hidden pb-[0.12em] align-bottom">
-      <m.span
-        className={`inline-block ${className}`}
-        initial={{ y: '110%' }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.7, delay: atraso, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {children}&nbsp;
-      </m.span>
-    </span>
+    <Fragment>
+      {/* `overflow-hidden` é a máscara; o span interno desliza por trás dela. */}
+      <span className="inline-block overflow-hidden pb-[0.14em] align-bottom">
+        <span
+          className={`palavra-revelada inline-block ${className}`}
+          style={{ '--indice': indice } as React.CSSProperties}
+        >
+          {children}
+        </span>
+      </span>{' '}
+    </Fragment>
   )
 }

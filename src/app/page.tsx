@@ -180,8 +180,8 @@ export default async function Home() {
           </div>
 
           <CascataAoRolar className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {imoveis.map((imovel) => (
-              <ItemCascata key={imovel.id} className="h-full">
+            {imoveis.map((imovel, posicao) => (
+              <ItemCascata key={imovel.id} indice={posicao} className="h-full">
                 <CardImovel imovel={imovel} />
               </ItemCascata>
             ))}
