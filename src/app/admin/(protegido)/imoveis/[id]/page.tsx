@@ -6,6 +6,8 @@ import { toPlain } from '@/lib/serialize'
 import { formatarBRL } from '@/lib/formato'
 import { rotuloTipo, selosDeCondicao } from '@/lib/apresentacao'
 import { BotaoPublicar } from '@/components/admin/botao-publicar'
+import { UploadFotos } from '@/components/admin/upload-fotos'
+import { storageConfigurado } from '@/lib/storage'
 
 export const metadata: Metadata = {
   title: 'Imóvel',
@@ -98,6 +100,27 @@ export default async function PaginaAdminImovel({
         </ul>
       )}
 
+      <section className="mt-8">
+        <h2 className="text-xs font-semibold tracking-[0.18em] text-stone-500 uppercase">
+          Fotos
+        </h2>
+        <div className="mt-3">
+          <UploadFotos
+            imovelId={imovel.id}
+            storageConfigurado={storageConfigurado()}
+            fotos={imovel.midias
+              .filter((midia) => midia.tipo === 'FOTO')
+              .sort((a, b) => a.ordem - b.ordem)
+              .map((midia) => ({
+                id: midia.id,
+                url: midia.url,
+                isCapa: midia.isCapa,
+                legenda: midia.legenda,
+              }))}
+          />
+        </div>
+      </section>
+
       {imovel.descricao && (
         <section className="mt-6">
           <h2 className="text-xs font-semibold tracking-[0.18em] text-stone-500 uppercase">
@@ -109,8 +132,8 @@ export default async function PaginaAdminImovel({
 
       {/* Sinaliza o que a fase 5 vai preencher, para o Hélio não achar que falta algo quebrado. */}
       <p className="mt-8 rounded-xl border border-dashed border-stone-300 px-4 py-3 text-sm text-stone-500">
-        Edição campo a campo, upload de fotos e geração de legenda para Instagram e
-        WhatsApp entram na próxima etapa.
+        Edição campo a campo e geração de legenda para Instagram e WhatsApp entram na
+        próxima etapa.
       </p>
     </div>
   )

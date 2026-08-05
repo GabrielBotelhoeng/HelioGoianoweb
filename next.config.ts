@@ -9,15 +9,22 @@ const nextConfig: NextConfig = {
    */
   images: {
     /**
-     * Só o YouTube por enquanto: os vídeos são hospedados lá (PROJETO.md seção 7) e as
-     * thumbnails vêm de `i.ytimg.com`.
+     * YouTube (thumbnails dos vídeos, PROJETO.md seção 7) e Supabase Storage (fotos
+     * dos imóveis).
      *
-     * O storage das fotos (Cloudflare R2 ou Supabase Storage) ainda não foi escolhido —
-     * quando for, o host entra aqui. Até lá não existe mídia própria cadastrada, e uma
-     * URL de host não listado quebra em tempo de execução em vez de silenciosamente
-     * servir imagem não otimizada.
+     * Host não listado aqui quebra em tempo de execução em vez de servir imagem não
+     * otimizada silenciosamente — por isso a lista é explícita.
      */
-    remotePatterns: [{ protocol: 'https', hostname: 'i.ytimg.com', pathname: '/vi/**' }],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'i.ytimg.com', pathname: '/vi/**' },
+      // Fotos dos imóveis. O subdomínio é o ref do projeto, então o curinga é
+      // necessário — trocar de projeto no Supabase não deve exigir mexer no build.
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
   },
 }
 
