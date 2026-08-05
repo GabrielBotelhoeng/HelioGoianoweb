@@ -1,0 +1,547 @@
+// Schema do site Hélio Goiano Corretor.
+// Fonte da verdade: PROJETO.md, seção 3.
+//
+// DESVIOS DELIBERADOS EM RELAÇÃO AO PROJETO.md (todos justificados):
+//
+//  1. `Simulacao.compatíveis` -> `Simulacao.compativeis`
+//     Prisma só aceita identificadores [A-Za-z][A-Za-z0-9_]*. O acento fazia
+//     `prisma validate` falhar antes de qualquer migration rodar.
+//
+//  2. `Imovel.videoPrincipalId` foi REMOVIDO.
+//     No PROJETO.md era um campo @unique solto, sem @relation. Transformá-lo em
+//     relação real criaria um ciclo de FKs entre Imovel e Video (Imovel.videoPrincipalId
+//     -> Video, Video.imovelId -> Imovel) e exigiria duas relações nomeadas.
+//     O model Video já tem `destaque` e `ordem`: o vídeo do hero é
+//     `videos.find(destaque) ?? videos[0]` pela ordem. Mesmo resultado, sem ciclo.
+//     A regra "um destaque por imóvel" é garantida em transação na camada de aplicação.
+//
+//  3. `PublicacaoGerada.linkCurtoId` permanece escalar solto, como no documento.
+//     Não virou relação para não ampliar o escopo sem pedido.
+
+//  4. Prisma 7: o generator virou `prisma-client` (gera TypeScript, exige `output`)
+//     e a `url` do datasource saiu do schema para `prisma.config.ts`.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- ENUMS ----------
+
+enum TipoImovel {
+  LOTE
+  CASA
+  APARTAMENTO
+  SALA_COMERCIAL
+  GALPAO
+  SITIO
+  CHACARA
+  FAZENDA
+}
+
+enum Finalidade {
+  VENDA
+  ALUGUEL
+  VENDA_E_ALUGUEL
+}
+
+enum StatusImovel {
+  DISPONIVEL
+  RESERVADO
+  VENDIDO
+  ALUGADO
+  INATIVO
+}
+
+enum StatusLoteamento {
+  LANCAMENTO
+  EM_VENDAS
+  ESGOTADO
+}
+
+enum TipoMidia {
+  FOTO
+  PLANTA
+  TOUR_360
+  AEREA
+}
+
+enum ProvedorVideo {
+  YOUTUBE
+  INSTAGRAM
+  TIKTOK
+  ARQUIVO
+}
+
+enum TipoVideo {
+  TOUR // ele andando pelo imóvel narrando
+  AEREO_DRONE
+  DEPOIMENTO
+  EDUCATIVO // "o primeiro imóvel é estratégia", "sair do aluguel"
+  INSTITUCIONAL
+}
+
+enum TipoProximidade {
+  ESCOLA
+  SAUDE
+  COMERCIO
+  LAZER
+  TRANSPORTE
+  PUBLICO
+  RELIGIOSO
+}
+
+enum OrigemLead {
+  PAGINA_IMOVEL
+  PAGINA_LOTEAMENTO
+  SIMULADOR
+  FORM_CONTATO
+  BOTAO_WHATSAPP
+  LINK_CURTO
+}
+
+enum StatusLead {
+  NOVO
+  EM_ATENDIMENTO
+  QUALIFICADO
+  VISITA_AGENDADA
+  PROPOSTA
+  GANHO
+  PERDIDO
+}
+
+enum CanalPublicacao {
+  INSTAGRAM
+  WHATSAPP_STATUS
+  TIKTOK
+  FACEBOOK
+  PORTAL
+}
+
+enum SistemaAmortizacao {
+  SAC
+  PRICE
+}
+
+// ---------- IMÓVEIS ----------
+
+model Loteamento {
+  id        String           @id @default(cuid())
+  slug      String           @unique
+  nome      String
+  descricao String?          @db.Text
+  status    StatusLoteamento @default(EM_VENDAS)
+
+  // localização
+  bairro    String?
+  cidade    String  @default("Alexânia")
+  uf        String  @default("GO")
+  latitude  Float?
+  longitude Float?
+
+  // infraestrutura entregue — argumento de venda recorrente
+  temAsfalto    Boolean @default(false)
+  temAgua       Boolean @default(false)
+  temEnergia    Boolean @default(false)
+  temEsgoto     Boolean @default(false)
+  temIluminacao Boolean @default(false)
+
+  // condições comerciais do loteamento
+  entradaMinima    Decimal? @db.Decimal(12, 2)
+  parcelasMax      Int?
+  parcelaApartirDe Decimal? @db.Decimal(12, 2)
+
+  plantaUrl String?
+  capaUrl   String?
+  destaque  Boolean @default(false)
+
+  metaTitle       String?
+  metaDescription String?
+
+  imoveis Imovel[]
+  leads   Lead[]
+  videos  Video[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([status, destaque])
+}
+
+model Imovel {
+  id                   String  @id @default(cuid())
+  codigo               String  @unique // "HG-0142" — ele referencia isso no WhatsApp
+  slug                 String  @unique
+  titulo               String
+  descricao            String? @db.Text
+  descricaoGeradaPorIA Boolean @default(false)
+
+  tipo       TipoImovel
+  finalidade Finalidade   @default(VENDA)
+  status     StatusImovel @default(DISPONIVEL)
+
+  loteamentoId String?
+  loteamento   Loteamento? @relation(fields: [loteamentoId], references: [id], onDelete: SetNull)
+
+  // localização
+  logradouro           String?
+  numero               String?
+  bairro               String?
+  cidade               String  @default("Alexânia")
+  uf                   String  @default("GO")
+  cep                  String?
+  pontoReferencia      String?
+  latitude             Float?
+  longitude            Float?
+  mostrarEnderecoExato Boolean @default(false) // corretor às vezes só mostra a região
+
+  // dimensões
+  areaTerrenoM2    Decimal? @db.Decimal(12, 2)
+  areaConstruidaM2 Decimal? @db.Decimal(12, 2)
+  frenteM          Decimal? @db.Decimal(8, 2)
+  fundoM           Decimal? @db.Decimal(8, 2)
+  dimensoesTexto   String? // "15x30" — formato que ele usa e o cliente entende
+
+  // características
+  quartos   Int?
+  suites    Int?
+  banheiros Int?
+  vagas     Int?
+  andares   Int?
+  mobiliado Boolean @default(false)
+
+  // preço
+  preco            Decimal? @db.Decimal(12, 2)
+  precoSobConsulta Boolean  @default(false)
+  valorIptu        Decimal? @db.Decimal(12, 2)
+  valorCondominio  Decimal? @db.Decimal(12, 2)
+
+  // condições de pagamento — núcleo do negócio dele
+  aceitaFinanciamento Boolean  @default(false)
+  aceitaMcmv          Boolean  @default(false)
+  aceitaFgts          Boolean  @default(false)
+  aceitaPermuta       Boolean  @default(false)
+  aceitaVeiculo       Boolean  @default(false) // "aceitamos carro no negócio"
+  entradaMinima       Decimal? @db.Decimal(12, 2)
+  parcelasMax         Int?
+  valorParcela        Decimal? @db.Decimal(12, 2)
+
+  // situação documental
+  escriturado   Boolean @default(false)
+  registrado    Boolean @default(false)
+  matricula     String?
+  temHabiteSe   Boolean @default(false)
+  situacaoTexto String?
+
+  // infraestrutura (relevante para lote)
+  temAsfalto          Boolean @default(false)
+  temAgua             Boolean @default(false)
+  temEnergia          Boolean @default(false)
+  prontoParaConstruir Boolean @default(false)
+
+  destaque Boolean @default(false)
+  ordem    Int     @default(0)
+
+  metaTitle       String?
+  metaDescription String?
+
+  visualizacoes   Int @default(0)
+  cliquesWhatsapp Int @default(0)
+
+  // O hero da página é o vídeo, não a foto. Ver desvio (2) no topo do arquivo:
+  // o vídeo principal é `videos` filtrado por `destaque`, ordenado por `ordem`.
+  midias       ImovelMidia[]
+  videos       Video[]
+  proximidades Proximidade[]
+  publicacoes  PublicacaoGerada[]
+  linksCurtos  LinkCurto[]
+  leads        Lead[]
+  simulacoes   SimulacaoImovel[]
+
+  publicadoEm  DateTime?
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+
+  @@index([status, tipo, destaque])
+  @@index([cidade, bairro])
+  @@index([preco])
+  @@index([loteamentoId])
+}
+
+model ImovelMidia {
+  id       String @id @default(cuid())
+  imovelId String
+  imovel   Imovel @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+
+  tipo     TipoMidia @default(FOTO)
+  url      String
+  urlThumb String?
+  legenda  String?
+  ordem    Int       @default(0)
+  isCapa   Boolean   @default(false)
+  largura  Int?
+  altura   Int?
+
+  criadoEm DateTime @default(now())
+
+  @@index([imovelId, ordem])
+}
+
+/// "Próximo ao novo Colégio 31 de Março", "Próximo ao Fórum" — ele vende localização
+/// por referência, não por endereço. Isso é conteúdo de venda, não decoração.
+model Proximidade {
+  id       String @id @default(cuid())
+  imovelId String
+  imovel   Imovel @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+
+  nome       String
+  tipo       TipoProximidade
+  distanciaM Int?
+
+  @@index([imovelId])
+}
+
+/// Vídeo é o formato dominante do Hélio, não um anexo.
+/// NÃO hospedamos o arquivo: guardamos o ID do provedor. O YouTube dele já é o CDN —
+/// entrega adaptativa em 4G ruim, custo zero e o vídeo ainda indexa no Google.
+model Video {
+  id             String        @id @default(cuid())
+  provedor       ProvedorVideo @default(YOUTUBE)
+  videoIdExterno String // ID no provedor, não a URL inteira
+  urlOriginal    String?
+  urlThumb       String? // thumb própria; a do YouTube é fallback
+
+  titulo          String
+  descricao       String?   @db.Text
+  tipo            TipoVideo @default(TOUR)
+  duracaoSegundos Int?
+
+  /// Transcrição do áudio. É o que transforma um reel em página indexável —
+  /// ele fala o bairro, o preço, a entrada e a referência dentro do vídeo,
+  /// e nada disso existe como texto hoje.
+  transcricao            String? @db.Text
+  transcricaoGeradaPorIA Boolean @default(false)
+
+  imovelId     String?
+  imovel       Imovel?     @relation(fields: [imovelId], references: [id], onDelete: SetNull)
+  loteamentoId String?
+  loteamento   Loteamento? @relation(fields: [loteamentoId], references: [id], onDelete: SetNull)
+  artigoId     String?
+  artigo       Artigo?     @relation(fields: [artigoId], references: [id], onDelete: SetNull)
+
+  ordem     Int     @default(0)
+  /// Marca o vídeo que abre a página do imóvel (o hero). Substitui o antigo
+  /// `Imovel.videoPrincipalId`. Unicidade por imóvel é garantida em transação.
+  destaque  Boolean @default(false)
+  publicado Boolean @default(true)
+  /// false quando o vídeo está como "não listado" no YouTube (trilha licenciada).
+  /// Só emitir JSON-LD VideoObject quando true.
+  indexavel Boolean @default(true)
+
+  visualizacoes Int @default(0)
+
+  publicadoEm  DateTime?
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+
+  @@unique([provedor, videoIdExterno])
+  @@index([imovelId, ordem])
+  @@index([tipo, destaque])
+}
+
+// ---------- LEADS E SIMULAÇÃO ----------
+
+model Lead {
+  id       String  @id @default(cuid())
+  nome     String
+  telefone String
+  email    String?
+  mensagem String? @db.Text
+
+  origem OrigemLead
+  status StatusLead @default(NOVO)
+
+  imovelId     String?
+  imovel       Imovel?     @relation(fields: [imovelId], references: [id], onDelete: SetNull)
+  loteamentoId String?
+  loteamento   Loteamento? @relation(fields: [loteamentoId], references: [id], onDelete: SetNull)
+  simulacao    Simulacao?
+
+  // de onde veio: status do WhatsApp converte mais que Instagram? isso responde.
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  linkCurtoId String?
+  linkCurto   LinkCurto? @relation(fields: [linkCurtoId], references: [id], onDelete: SetNull)
+
+  consentimentoLgpd Boolean @default(false)
+  observacoes       String? @db.Text
+
+  criadoEm        DateTime @default(now())
+  ultimaInteracao DateTime @default(now())
+
+  @@index([status, criadoEm])
+  @@index([imovelId])
+}
+
+/// O recurso central. Substitui a simulação manual que ele faz no direct.
+/// A pessoa se autoqualifica e o lead chega com renda, entrada e imóvel de interesse.
+model Simulacao {
+  id String @id @default(cuid())
+
+  // entrada do usuário
+  rendaBrutaFamiliar Decimal @db.Decimal(12, 2)
+  valorEntrada       Decimal @default(0) @db.Decimal(12, 2)
+  valorFgts          Decimal @default(0) @db.Decimal(12, 2)
+  possuiImovel       Boolean @default(false) // critério de elegibilidade de programa habitacional
+  dependentes        Int     @default(0)
+  prazoMeses         Int
+
+  // parâmetros aplicados no momento do cálculo (congelados para auditoria)
+  sistema               SistemaAmortizacao @default(SAC)
+  taxaJurosAa           Decimal            @db.Decimal(6, 4)
+  comprometimentoMaxPct Decimal            @db.Decimal(5, 2)
+
+  // resultado
+  parcelaMaxima    Decimal  @db.Decimal(12, 2)
+  valorFinanciavel Decimal  @db.Decimal(12, 2)
+  poderDeCompra    Decimal  @db.Decimal(12, 2) // financiável + entrada + FGTS
+  primeiraParcela  Decimal  @db.Decimal(12, 2)
+  ultimaParcela    Decimal? @db.Decimal(12, 2) // SAC: decrescente
+
+  leadId String? @unique
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  // NOTA: renomeado de `compatíveis` — Prisma não aceita acento em identificador.
+  compativeis SimulacaoImovel[]
+
+  criadoEm DateTime @default(now())
+
+  @@index([criadoEm])
+}
+
+model SimulacaoImovel {
+  simulacaoId String
+  simulacao   Simulacao @relation(fields: [simulacaoId], references: [id], onDelete: Cascade)
+  imovelId    String
+  imovel      Imovel    @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+  folga       Decimal   @db.Decimal(12, 2) // poderDeCompra - preço
+
+  @@id([simulacaoId, imovelId])
+}
+
+/// Taxa de juros, prazo e regras de programa habitacional mudam.
+/// NUNCA hardcodar no código — tudo vem daqui, editável no admin.
+model ParametroSimulador {
+  chave        String   @id
+  valor        String
+  descricao    String?
+  atualizadoEm DateTime @updatedAt
+}
+
+// ---------- DISTRIBUIÇÃO ----------
+
+/// Texto pronto para colar em cada canal. Gerado por IA a partir do imóvel, editável.
+model PublicacaoGerada {
+  id       String @id @default(cuid())
+  imovelId String
+  imovel   Imovel @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+
+  canal       CanalPublicacao
+  legenda     String          @db.Text
+  hashtags    String?
+  linkCurtoId String?
+
+  geradoPorIa Boolean   @default(true)
+  editado     Boolean   @default(false)
+  copiadoEm   DateTime?
+  publicadoEm DateTime?
+
+  criadoEm DateTime @default(now())
+
+  @@index([imovelId, canal])
+}
+
+/// Rastreia qual canal converte. Um link por canal, não um link só.
+model LinkCurto {
+  id         String           @id @default(cuid())
+  codigo     String           @unique // /l/abc123
+  destinoUrl String
+  canal      CanalPublicacao?
+  imovelId   String?
+  imovel     Imovel?          @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+
+  cliques Int    @default(0)
+  leads   Lead[]
+
+  criadoEm DateTime @default(now())
+
+  @@index([codigo])
+}
+
+// ---------- CONTEÚDO E CONFIGURAÇÃO ----------
+
+/// Ele já produz conteúdo educativo forte ("o primeiro imóvel é estratégia",
+/// "sair do aluguel"). É o combustível de SEO do projeto.
+model Artigo {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  titulo      String
+  resumo      String?
+  corpoMd     String    @db.Text
+  capaUrl     String?
+  videos      Video[] // um reel educativo dele vira um artigo
+  publicado   Boolean   @default(false)
+  publicadoEm DateTime?
+
+  metaTitle       String?
+  metaDescription String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([publicado, publicadoEm])
+}
+
+model Depoimento {
+  id        String   @id @default(cuid())
+  nome      String
+  texto     String   @db.Text
+  fotoUrl   String?
+  cidade    String?
+  publicado Boolean  @default(false)
+  ordem     Int      @default(0)
+  criadoEm  DateTime @default(now())
+}
+
+/// Registro único (id fixo = "default")
+model ConfiguracaoSite {
+  id                     String   @id @default("default")
+  nomeExibicao           String   @default("Hélio Goiano Corretor")
+  creci                  String   @default("11643")
+  telefoneWhatsapp       String
+  mensagemWhatsappPadrao String   @default("Olá Hélio, tenho interesse no imóvel {codigo} — {titulo}. {link}")
+  email                  String?
+  endereco               String?
+  horarioAtendimento     String?
+  sobreTexto             String?  @db.Text
+  fotoPerfilUrl          String?
+  instagramUrl           String?
+  tiktokUrl              String?
+  youtubeUrl             String?
+  facebookUrl            String?
+  googleMapsUrl          String?
+  atualizadoEm           DateTime @updatedAt
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  senhaHash String
+  nome      String
+  criadoEm  DateTime @default(now())
+}
